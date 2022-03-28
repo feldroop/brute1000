@@ -1,9 +1,47 @@
+mod counting;
+
 fn main() {
+    dynamic_programming();
+    // let starting_game_state = GameState::new();
+    
+    // brute_force();
+}
+
+fn brute_force() {
     let starting_game_state = GameState::new();
 
     let average_score = dice_roll(starting_game_state);
-
+    
     println!("Average score: {}", average_score);
+}
+
+fn dynamic_programming() {
+    const TABLE_SIZE: usize = 7usize.pow(9);
+    
+    // 1.21 GB memory consumption
+    let scores :Vec<[f32; 6]> = vec![[0.0; 6]; TABLE_SIZE];
+    let moves :Vec<[u8; 6]> = vec![[0; 6]; TABLE_SIZE];
+    
+    // for board in counting::digit_numbers::<9,7>(1) {
+    //     for empty_position in board
+    //         .into_iter()
+    //         .enumerate()
+    //         .filter(|(_, value)| **value == 0)
+    //         .map(|(position, _)| position) {
+
+    //         }
+
+    //     //println!("{:?} -> {:2}", val, counting::to_value::<4,3>(val))
+    // }
+
+}
+
+fn score(board: &[u8; 9]) -> f64 {
+    (1000
+        - ((board[0] + board[1] + board[2]) as i32 * 100
+            + (board[3] + board[4] + board[5]) as i32 * 10
+            + (board[6] + board[7] + board[8]) as i32))
+        .abs() as f64
 }
 
 fn player_choice(dice: i32, game_state: &GameState) -> f64 {
