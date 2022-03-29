@@ -1,11 +1,19 @@
-/// iterator over all LEN-digit BASE-base numbers with num_zeros > 0 zeros as digits
+/// iterator over all LEN-digit BASE-base numbers with num_zeros zeros as digits
 pub fn digit_numbers<const LEN: usize, const BASE: u8>(
     num_zeros: usize,
 ) -> impl Iterator<Item = [u8; LEN]> {
-    if LEN == 0 || LEN > 31 || BASE < 2 || num_zeros == 0 {
+    if LEN == 0 || LEN > 31 || BASE < 2 {
         panic!()
     } else {
-        return fixed_pop_bitvalues(LEN as i32, (LEN - num_zeros) as i32)
+        // if num_zeros is LEN, we use LEN ones instead of 0 and flip,
+        // because gospers hack works only with k > 0
+        let num_ones = if LEN == num_zeros {
+            LEN
+        } else {
+            LEN - num_zeros
+        } as i32;
+
+        fixed_pop_bitvalues(LEN as i32, num_ones, LEN == num_zeros)
             .map(|zero_pattern| {
                 // the zero_pattern is an indicator for the positions that must be 0
                 let mut next_val = [1; LEN];
@@ -20,20 +28,7 @@ pub fn digit_numbers<const LEN: usize, const BASE: u8>(
                     curr_digit: 0,
                 }
             })
-            .flatten();
-    }
-}
-
-/// iterator over all LEN-digit BASE-base numbers with no zeros as digits
-pub fn digit_numbers_no_zero<const LEN: usize, const BASE: u8>() -> impl Iterator<Item = [u8; LEN]>
-{
-    if LEN == 0 || LEN > 31 || BASE < 2 {
-        panic!()
-    } else {
-        return ZeroPatternNumbers::<LEN, BASE> {
-            next_val: [1; LEN],
-            curr_digit: 0,
-        };
+            .flatten()
     }
 }
 
@@ -73,13 +68,16 @@ impl<const LEN: usize, const BASE: u8> Iterator for ZeroPatternNumbers<LEN, BASE
 }
 
 /// iterator over all n-digit bitvalues with k ones
-fn fixed_pop_bitvalues(n: i32, k: i32) -> FixedPopBitvalues {
+/// if flip == true, instead k zeros are given
+/// using gospers hack
+fn fixed_pop_bitvalues(n: i32, k: i32, flip: bool) -> FixedPopBitvalues {
     if n > 31 || k > n || k == 0 {
         panic!()
     } else {
         FixedPopBitvalues {
             limit: 1 << n,
             next_val: (1 << k) - 1,
+            flip,
         }
     }
 }
@@ -87,6 +85,7 @@ fn fixed_pop_bitvalues(n: i32, k: i32) -> FixedPopBitvalues {
 struct FixedPopBitvalues {
     limit: i32,
     next_val: i32,
+    flip: bool,
 }
 
 impl Iterator for FixedPopBitvalues {
@@ -104,7 +103,11 @@ impl Iterator for FixedPopBitvalues {
         let moved_rightmost1 = curr + rightmost1;
         self.next_val = (((moved_rightmost1 ^ curr) >> 2) / rightmost1) | moved_rightmost1;
 
-        Some(curr)
+        if self.flip {
+            Some(!curr)
+        } else {
+            Some(curr)
+        }
     }
 }
 
@@ -113,8 +116,67 @@ fn bit_at(val: i32, bit_index: u8) -> u8 {
     ((val >> bit_index) & 1i32) as u8
 }
 
-pub fn to_value<const LEN: usize, const BASE: u32>(digits: [u8; LEN]) -> usize {
+/// convert a number of length LEN in base BASE from given digits to usize value
+pub fn to_value<const LEN: usize, const BASE: u8>(digits: &[u8; LEN]) -> usize {
     (0..LEN)
-        .map(|i| digits[i] as u32 * BASE.pow((LEN - i - 1) as u32))
+        .map(|i| digits[i] as u32 * (BASE as u32).pow((LEN - i - 1) as u32))
         .sum::<u32>() as usize
+}
+
+// some sanity checks
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn factorial(n: usize) -> usize {
+        if n == 0 {
+            1
+        } else {
+            n * factorial(n - 1)
+        }
+    }
+
+    fn binomial_coefficient(n: usize, k: usize) -> usize {
+        if k > n {
+            0
+        } else {
+            factorial(n) / (factorial(k) * factorial(n - k))
+        }
+    }
+
+    // checks whether the number of elements in the digit_numbers iterator 
+    // has the value it theoretically should have
+    #[test]
+    fn test_digit_numbers_cardinality() {
+        const LEN: usize = 5;
+        const BASE: u8 = 7;
+
+        for num_zeros in 0..=LEN {
+            let cardinality = digit_numbers::<LEN, BASE>(num_zeros).count();
+            let expected = binomial_coefficient(LEN, num_zeros)
+                * ((BASE - 1) as usize).pow((LEN - num_zeros) as u32) as usize;
+            assert_eq!(cardinality, expected)
+        }
+    }
+
+    // check whether all cells of the table are hit exactly once, 
+    // which should theoretically be the case
+    #[test]
+    fn test_table_coverage() {
+        const LEN: usize = 5;
+        const BASE: u8 = 7;
+        const TABLE_SIZE: usize = (BASE as usize).pow(LEN as u32);
+
+        let mut table: Vec<u8> = vec![0; TABLE_SIZE];
+
+        for num_zeros in 0..=LEN {
+            for digits in digit_numbers::<LEN, BASE>(num_zeros) {
+                table[to_value::<LEN, BASE>(&digits)] += 1;
+            }
+        }
+
+        for val in table {
+            assert_eq!(val, 1)
+        }
+    }
 }
