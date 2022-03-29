@@ -108,11 +108,11 @@ fn score(board: &[u8; 9]) -> f32 {
 
     // bonus points for matching diagonals
     if board[0] == board[4] && board[4] == board[8] {
-        base_score -= board[4] as f32;
+        base_score -= (board[4] * 10) as f32;
     }
 
     if board[2] == board[4] && board[4] == board[6] {
-        base_score -= board[4] as f32;
+        base_score -= (board[4] * 10) as f32;
     }
 
     base_score
