@@ -50,8 +50,8 @@ fn dynamic_programming() -> Vec<[u8; 6]> {
     }
 
     // Recursion:
-    for num_empty_fields in 2..=9 {
-        for mut board in counting::digit_numbers::<9, 7>(num_empty_fields) {
+    for num_zeros in 2..=9 {
+        for mut board in counting::digit_numbers::<9, 7>(num_zeros) {
             // board is our current game board
             let board_index = counting::to_value::<9, 7>(&board);
 
@@ -86,7 +86,7 @@ fn dynamic_programming() -> Vec<[u8; 6]> {
     }
 
     println!(
-        "The expected score with mean-optimizing play is {}.",
+        "The expected score with expectation-optimizing play is {}.",
         scores[0]
     );
 
