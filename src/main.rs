@@ -143,7 +143,7 @@ fn play_game(moves: &Vec<[u8; 6]>) {
     println!("Final score: {}", score(&board))
 }
 
-/// Repeatedly ask the user for a number btween 1 and 6
+/// Repeatedly ask the user for a number between 1 and 6
 fn user_dice_input() -> u8 {
     let dice_roll = loop {
         let mut dice_roll = String::new();
