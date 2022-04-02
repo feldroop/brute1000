@@ -13,22 +13,20 @@ pub fn digit_numbers<const LEN: usize, const BASE: u8>(
             LEN - num_zeros
         } as i32;
 
-        fixed_pop_bitvalues(LEN as i32, num_ones, LEN == num_zeros)
-            .map(|zero_pattern| {
-                // the zero_pattern is an indicator for the positions that must be 0
-                let mut next_val = [1; LEN];
-                for i in 0..LEN {
-                    if bit_at(zero_pattern, i as u8) == 0 {
-                        next_val[LEN - i - 1] = 0;
-                    }
+        fixed_pop_bitvalues(LEN as i32, num_ones, LEN == num_zeros).flat_map(|zero_pattern| {
+            // the zero_pattern is an indicator for the positions that must be 0
+            let mut next_val = [1; LEN];
+            for i in 0..LEN {
+                if bit_at(zero_pattern, i as u8) == 0 {
+                    next_val[LEN - i - 1] = 0;
                 }
+            }
 
-                ZeroPatternNumbers::<LEN, BASE> {
-                    next_val,
-                    curr_digit: 0,
-                }
-            })
-            .flatten()
+            ZeroPatternNumbers::<LEN, BASE> {
+                next_val,
+                curr_digit: 0,
+            }
+        })
     }
 }
 
@@ -144,7 +142,7 @@ mod tests {
         }
     }
 
-    // checks whether the number of elements in the digit_numbers iterator 
+    // checks whether the number of elements in the digit_numbers iterator
     // has the value it theoretically should have
     #[test]
     fn test_digit_numbers_cardinality() {
@@ -159,7 +157,7 @@ mod tests {
         }
     }
 
-    // check whether all cells of the table are hit exactly once, 
+    // check whether all cells of the table are hit exactly once,
     // which should theoretically be the case
     #[test]
     fn test_table_coverage() {

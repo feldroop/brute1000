@@ -59,7 +59,7 @@ fn dynamic_programming() -> Vec<[u8; 6]> {
 
             for dice_roll in 1..=6 {
                 // we roll the dice and get dice_roll
-                let (best_score, best_position) = IntoIterator::into_iter(board.clone())
+                let (best_score, best_position) = IntoIterator::into_iter(board)
                     .enumerate()
                     .filter(|(_, value)| *value == 0)
                     .map(
@@ -126,7 +126,7 @@ fn print_board(board: &[u8; 9]) {
 }
 
 /// lets user play a game of Potz1000 as the dice and the program chooses the optimal moves
-fn play_game(moves: &Vec<[u8; 6]>) {
+fn play_game(moves: &[[u8; 6]]) {
     let mut board = [0u8; 9];
 
     for _ in 0..9 {
