@@ -1,7 +1,9 @@
+pub type Digit = u32;
+
 /// iterator over all LEN-digit BASE-base numbers with num_zeros zeros as digits
-pub fn digit_numbers<const LEN: usize, const BASE: u8>(
+pub fn digit_numbers<const LEN: usize, const BASE: usize>(
     num_zeros: usize,
-) -> impl Iterator<Item = [u8; LEN]> {
+) -> impl Iterator<Item = [Digit; LEN]> {
     if LEN == 0 || LEN > 31 || BASE < 2 {
         panic!()
     } else {
@@ -17,7 +19,7 @@ pub fn digit_numbers<const LEN: usize, const BASE: u8>(
             // the zero_pattern is an indicator for the positions that must be 0
             let mut next_val = [1; LEN];
             for i in 0..LEN {
-                if bit_at(zero_pattern, i as u8) == 0 {
+                if bit_at(zero_pattern, i) == 0 {
                     next_val[LEN - i - 1] = 0;
                 }
             }
@@ -30,13 +32,13 @@ pub fn digit_numbers<const LEN: usize, const BASE: u8>(
     }
 }
 
-pub struct ZeroPatternNumbers<const LEN: usize, const BASE: u8> {
-    next_val: [u8; LEN],
+pub struct ZeroPatternNumbers<const LEN: usize, const BASE: usize> {
+    next_val: [Digit; LEN],
     curr_digit: usize,
 }
 
-impl<const LEN: usize, const BASE: u8> Iterator for ZeroPatternNumbers<LEN, BASE> {
-    type Item = [u8; LEN];
+impl<const LEN: usize, const BASE: usize> Iterator for ZeroPatternNumbers<LEN, BASE> {
+    type Item = [Digit; LEN];
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         if self.curr_digit == LEN {
@@ -45,9 +47,11 @@ impl<const LEN: usize, const BASE: u8> Iterator for ZeroPatternNumbers<LEN, BASE
 
         let curr = self.next_val;
 
-        while curr[LEN - self.curr_digit - 1] == BASE - 1 || curr[LEN - self.curr_digit - 1] == 0 {
+        while curr[LEN - self.curr_digit - 1] == (BASE - 1) as Digit
+            || curr[LEN - self.curr_digit - 1] == 0
+        {
             // reset this digit to 1 because the zeros are fixed
-            if curr[LEN - self.curr_digit - 1] == BASE - 1 {
+            if curr[LEN - self.curr_digit - 1] == (BASE - 1) as Digit {
                 self.next_val[LEN - self.curr_digit - 1] = 1;
             }
 
@@ -110,15 +114,15 @@ impl Iterator for FixedPopBitvalues {
 }
 
 /// 0-based bit_index starting from the least significant bit (right regarding shift direction)
-fn bit_at(val: i32, bit_index: u8) -> u8 {
-    ((val >> bit_index) & 1i32) as u8
+fn bit_at(val: i32, bit_index: usize) -> u32 {
+    ((val >> bit_index) & 1i32) as u32
 }
 
 /// convert a number of length LEN in base BASE from given digits to usize value
-pub fn to_value<const LEN: usize, const BASE: u8>(digits: &[u8; LEN]) -> usize {
+pub fn to_value<const LEN: usize, const BASE: usize>(digits: &[Digit; LEN]) -> usize {
     (0..LEN)
-        .map(|i| digits[i] as u32 * (BASE as u32).pow((LEN - i - 1) as u32))
-        .sum::<u32>() as usize
+        .map(|i| digits[i] as usize * BASE.pow((LEN - i - 1) as u32))
+        .sum()
 }
 
 // some sanity checks
@@ -147,7 +151,7 @@ mod tests {
     #[test]
     fn test_digit_numbers_cardinality() {
         const LEN: usize = 5;
-        const BASE: u8 = 7;
+        const BASE: usize = 7;
 
         for num_zeros in 0..=LEN {
             let cardinality = digit_numbers::<LEN, BASE>(num_zeros).count();
@@ -162,7 +166,7 @@ mod tests {
     #[test]
     fn test_table_coverage() {
         const LEN: usize = 5;
-        const BASE: u8 = 7;
+        const BASE: usize = 7;
         const TABLE_SIZE: usize = (BASE as usize).pow(LEN as u32);
 
         let mut table: Vec<u8> = vec![0; TABLE_SIZE];
