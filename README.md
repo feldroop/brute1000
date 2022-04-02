@@ -3,7 +3,7 @@
 ## About
 
 This program solves the game *Potz1000* by precomputing the best move regarding expected final score for every game state.
-The underlying algorithm uses a dynamic programming sheme, because the naive brute force didn't finish in reasonable time on my laptop.
+The underlying algorithm uses a dynamic programming scheme, because the naive brute force didn't finish in reasonable time on my laptop.
 
 ## Potz1000
 
