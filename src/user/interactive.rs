@@ -1,11 +1,11 @@
 use crate::counting;
 use crate::game;
-use crate::game::{Move, Tile};
+use crate::game::{Move, Tile, Board};
 use crate::game::{BOARD_SIZE, NUM_DICE_SIDES, NUM_TILE_VALUES};
 
 /// lets user play a game of Potz1000 as the dice and the program chooses the optimal moves
 pub fn play_game(moves: &[[Move; NUM_DICE_SIDES]]) {
-    let mut board = [0; BOARD_SIZE];
+    let mut board: Board = [0; BOARD_SIZE];
 
     for _ in 0..BOARD_SIZE {
         print_board(&board);
@@ -66,7 +66,7 @@ pub fn decision_input() -> bool {
     answer == "y"
 }
 
-fn print_board(board: &[Tile; BOARD_SIZE]) {
+fn print_board(board: &Board) {
     if BOARD_SIZE == 9 {
         println!(
             "Current board:\n{} {} {}\n{} {} {}\n{} {} {}",

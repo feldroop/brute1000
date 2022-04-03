@@ -4,7 +4,7 @@ use crate::game;
 use crate::game::{Move, Tile};
 use crate::game::{BOARD_SIZE, NUM_DICE_SIDES, NUM_GAME_STATES, NUM_TILE_VALUES};
 
-pub fn explicit() -> Output {
+pub fn explicit_dynamic_programming() -> Output {
     let mut scores: Vec<f32> = vec![0.0; NUM_GAME_STATES];
 
     let mut moves: Vec<[Move; NUM_DICE_SIDES]> = vec![[0; NUM_DICE_SIDES]; NUM_GAME_STATES];
@@ -74,7 +74,3 @@ pub fn explicit() -> Output {
     // return traceback table
     Output { moves, scores }
 }
-
-// pub fn implicit() -> Output {
-//     todo!()
-// }

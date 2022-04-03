@@ -1,5 +1,5 @@
-pub mod dynamic_programming;
-pub mod naive;
+pub mod iterative;
+pub mod recursive;
 
 use crate::game::{Move, NUM_DICE_SIDES};
 
@@ -13,3 +13,7 @@ pub struct Output {
     // to get score[<board_value with dice_roll inserted at best position>]
     pub moves: Vec<[Move; NUM_DICE_SIDES]>,
 }
+
+pub use iterative::explicit_dynamic_programming;
+pub use recursive::with_cache as implicit_dynamic_programming;
+pub use recursive::naive as naive_brute_force;

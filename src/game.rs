@@ -6,9 +6,10 @@ pub const NUM_GAME_STATES: usize = NUM_TILE_VALUES.pow(BOARD_SIZE as u32);
 // this must be able to fit a value of up to BOARD_SIZE - 1;
 pub type Move = u8;
 pub type Tile = crate::counting::Digit;
+pub type Board = [Tile; BOARD_SIZE];
 
 /// Potz1000 game score
-pub fn score(board: &[Tile; BOARD_SIZE]) -> f32 {
+pub fn score(board: &Board) -> f32 {
     if BOARD_SIZE == 9 {
         // board indices are interpreted as the following real board layout:
         // 0 3 6
